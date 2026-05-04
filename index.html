@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instafix</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --panel: #161618;
+    --border: #2a2a2e;
+    --accent: #f0c040;
+    --accent2: #e87040;
+    --text: #e8e8e0;
+    --muted: #7a7a72;
+    --track: #2a2a2e;
+    --thumb: #f0c040;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header-meta {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── CANVAS AREA ── */
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.25;
+  }
+
+  .drop-zone {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .drop-zone:hover { opacity: 0.8; }
+
+  .drop-icon {
+    width: 72px;
+    height: 72px;
+    border: 2px dashed var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--accent);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240,192,64,0.3); }
+    50%       { box-shadow: 0 0 0 12px rgba(240,192,64,0); }
+  }
+
+  .drop-label {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .drop-label strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  #preview-canvas {
+    display: none;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--radius);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .panel {
+    width: 280px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .panel-header {
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  /* ── CONTROL SECTIONS ── */
+  .section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  .control {
+    margin-bottom: 18px;
+  }
+
+  .control:last-child { margin-bottom: 0; }
+
+  .control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .control-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .control-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── RANGE SLIDER ── */
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--track);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--thumb);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 6px rgba(240,192,64,0.5);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(240,192,64,0.8);
+  }
+
+  input[type="range"]:focus::-webkit-slider-thumb {
+    transform: scale(1.25);
+  }
+
+  /* dynamic fill using --pct CSS var set by JS */
+  input[type="range"].filled {
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 50%), var(--track) var(--pct, 50%), var(--track) 100%);
+  }
+
+  /* ── RESET BUTTON ── */
+  .reset-btn {
+    margin: 16px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── EXPORT BUTTON ── */
+  .export-btn {
+    margin: 14px 20px 24px;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    color: #0e0e0f;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    width: calc(100% - 40px);
+  }
+
+  .export-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .export-btn:active { transform: translateY(0); }
+  .export-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  /* ── FILE META ── */
+  .file-meta {
+    padding: 10px 20px 0;
+    font-size: 11px;
+    color: var(--muted);
+    display: none;
+    line-height: 1.7;
+  }
+
+  .file-meta span { color: var(--text); }
+
+  /* hidden file input */
+  #file-input { display: none; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #0e0e0f;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Instafix</div>
+  <div class="header-meta">edición de Foto</div>
+</header>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+
+  <!-- CANVAS -->
+  <div class="canvas-area" id="canvas-area">
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-icon">⊕</div>
+      <div class="drop-label">
+        <strong>Haz clic o arrastra</strong> tu imagen aquí<br>
+        Formatos soportados: JPG, PNG
+      </div>
+    </div>
+    <canvas id="preview-canvas"></canvas>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="panel">
+    <div class="panel-header">Ajustes</div>
+
+    <!-- Exposición -->
+    <div class="section">
+      <div class="section-title">Luz</div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Exposición</span>
+          <span class="control-value" id="val-exposure">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-exposure" min="-100" max="100" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Contraste</span>
+          <span class="control-value" id="val-contrast">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-contrast" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div class="section">
+      <div class="section-title">Color</div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Balance de Blancos</span>
+          <span class="control-value" id="val-wb">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-wb" min="-100" max="100" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Matiz</span>
+          <span class="control-value" id="val-hue">0°</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-hue" min="-180" max="180" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Saturación</span>
+          <span class="control-value" id="val-sat">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-sat" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <!-- Detalle -->
+    <div class="section">
+      <div class="section-title">Detalle</div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Nitidez</span>
+          <span class="control-value" id="val-sharp">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <!-- File meta -->
+    <div class="file-meta" id="file-meta">
+      Archivo: <span id="meta-name">—</span><br>
+      Dimensiones: <span id="meta-dims">—</span>
+    </div>
+
+    <!-- Reset -->
+    <button class="reset-btn" id="btn-reset">↺ &nbsp;Restablecer ajustes</button>
+
+    <!-- Export -->
+    <button class="export-btn" id="btn-export" disabled>⬇ Exportar JPG</button>
+  </aside>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">Imagen exportada ✓</div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+
+<script>
+  /* ── STATE ── */
+  const state = {
+    exposure: 0, contrast: 0,
+    wb: 0, hue: 0, sat: 0, sharp: 0
+  };
+
+  let originalImage = null;
+  let fileName = 'instafix-export';
+
+  /* ── ELEMENTS ── */
+  const canvas = document.getElementById('preview-canvas');
+  const ctx    = canvas.getContext('2d');
+  const dropZone  = document.getElementById('drop-zone');
+  const canvasArea = document.getElementById('canvas-area');
+  const fileInput  = document.getElementById('file-input');
+  const exportBtn  = document.getElementById('btn-export');
+  const resetBtn   = document.getElementById('btn-reset');
+  const toast      = document.getElementById('toast');
+  const fileMeta   = document.getElementById('file-meta');
+
+  const controls = {
+    exposure: document.getElementById('ctrl-exposure'),
+    contrast: document.getElementById('ctrl-contrast'),
+    wb:       document.getElementById('ctrl-wb'),
+    hue:      document.getElementById('ctrl-hue'),
+    sat:      document.getElementById('ctrl-sat'),
+    sharp:    document.getElementById('ctrl-sharp'),
+  };
+
+  const valueLabels = {
+    exposure: document.getElementById('val-exposure'),
+    contrast: document.getElementById('val-contrast'),
+    wb:       document.getElementById('val-wb'),
+    hue:      document.getElementById('val-hue'),
+    sat:      document.getElementById('val-sat'),
+    sharp:    document.getElementById('val-sharp'),
+  };
+
+  /* ── SLIDER FILL ── */
+  function updateSliderFill(input) {
+    const min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    input.style.setProperty('--pct', pct + '%');
+  }
+
+  /* ── LOAD IMAGE ── */
+  function loadFile(file) {
+    if (!file || !file.type.match(/image\/(jpeg|png|webp)/)) return;
+    fileName = file.name.replace(/\.[^.]+$/, '');
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        originalImage = img;
+        // Size canvas to fit area
+        const area = canvasArea.getBoundingClientRect();
+        const scale = Math.min((area.width - 48) / img.width, (area.height - 48) / img.height, 1);
+        canvas.width  = img.width;
+        canvas.height = img.height;
+        canvas.style.width  = (img.width  * scale) + 'px';
+        canvas.style.height = (img.height * scale) + 'px';
+
+        dropZone.style.display = 'none';
+        canvas.style.display = 'block';
+        exportBtn.disabled = false;
+
+        document.getElementById('meta-name').textContent = file.name;
+        document.getElementById('meta-dims').textContent = `${img.width} × ${img.height} px`;
+        fileMeta.style.display = 'block';
+
+        applyAdjustments();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── PIXEL PROCESSING ── */
+  function applyAdjustments() {
+    if (!originalImage) return;
+
+    ctx.drawImage(originalImage, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    const exposure  = state.exposure  / 100;  // –1 to +1
+    const contrast  = state.contrast  / 100;  // –1 to +1
+    const wb        = state.wb        / 100;  // –1 to +1  (cool→warm)
+    const hueShift  = state.hue;              // –180 to +180 degrees
+    const satFactor = state.sat       / 100;  // –1 to +1
+    const sharp     = state.sharp     / 100;  // 0 to 1
+
+    const contrastF = contrast >= 0
+      ? 1 + contrast * 1.5
+      : 1 + contrast;
+
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i]   / 255;
+      let g = data[i+1] / 255;
+      let b = data[i+2] / 255;
+
+      // ── EXPOSURE (brightness)
+      r = clamp(r + exposure * 0.8);
+      g = clamp(g + exposure * 0.8);
+      b = clamp(b + exposure * 0.8);
+
+      // ── CONTRAST (pivot at 0.5)
+      r = clamp((r - 0.5) * contrastF + 0.5);
+      g = clamp((g - 0.5) * contrastF + 0.5);
+      b = clamp((b - 0.5) * contrastF + 0.5);
+
+      // ── WHITE BALANCE  (warm = more R/G, less B; cool = more B, less R)
+      if (wb !== 0) {
+        r = clamp(r + wb * 0.18);
+        g = clamp(g + wb * 0.05);
+        b = clamp(b - wb * 0.18);
+      }
+
+      // ── HUE & SATURATION  (work in HSL)
+      if (hueShift !== 0 || satFactor !== 0) {
+        let [h, s, l] = rgbToHsl(r, g, b);
+        h = (h + hueShift / 360 + 1) % 1;
+        s = clamp(s + satFactor * s + satFactor * 0.15);
+        [r, g, b] = hslToRgb(h, s, l);
+      }
+
+      data[i]   = r * 255;
+      data[i+1] = g * 255;
+      data[i+2] = b * 255;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // ── SHARPNESS via CSS filter (fast approximation)
+    const sharpPx  = sharp * 1.5;
+    const blurPx   = sharp > 0 ? 0 : 0;
+    canvas.style.filter = sharp > 0
+      ? `contrast(${1 + sharp * 0.08}) saturate(${1 + sharp * 0.04})`
+      : '';
+  }
+
+  function clamp(v) { return Math.max(0, Math.min(1, v)); }
+
+  function rgbToHsl(r, g, b) {
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    const l = (max + min) / 2;
+    if (max === min) return [0, 0, l];
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    let h;
+    switch(max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+    return [h, s, l];
+  }
+
+  function hslToRgb(h, s, l) {
+    if (s === 0) return [l, l, l];
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    return [hue2rgb(p,q,h+1/3), hue2rgb(p,q,h), hue2rgb(p,q,h-1/3)];
+  }
+
+  function hue2rgb(p, q, t) {
+    if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q-p)*6*t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q-p)*(2/3-t)*6;
+    return p;
+  }
+
+  /* ── WIRE UP CONTROLS ── */
+  Object.keys(controls).forEach(key => {
+    const input = controls[key];
+    updateSliderFill(input);
+
+    input.addEventListener('input', () => {
+      state[key] = parseFloat(input.value);
+      updateSliderFill(input);
+
+      const isHue = key === 'hue';
+      valueLabels[key].textContent = isHue
+        ? `${input.value}°`
+        : input.value;
+
+      applyAdjustments();
+    });
+  });
+
+  /* ── RESET ── */
+  resetBtn.addEventListener('click', () => {
+    Object.keys(controls).forEach(key => {
+      controls[key].value = 0;
+      state[key] = 0;
+      updateSliderFill(controls[key]);
+      valueLabels[key].textContent = key === 'hue' ? '0°' : '0';
+    });
+    // reset sharp min=0 display
+    controls.sharp.value = 0;
+    state.sharp = 0;
+    updateSliderFill(controls.sharp);
+    valueLabels.sharp.textContent = '0';
+
+    canvas.style.filter = '';
+    applyAdjustments();
+  });
+
+  /* ── EXPORT ── */
+  exportBtn.addEventListener('click', () => {
+    if (!originalImage) return;
+
+    // Render to full-res offscreen canvas
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = originalImage.width;
+    offscreen.height = originalImage.height;
+    const offCtx = offscreen.getContext('2d');
+    offCtx.drawImage(originalImage, 0, 0);
+
+    const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+    const data = imageData.data;
+
+    const exposure  = state.exposure / 100;
+    const contrast  = state.contrast / 100;
+    const wb        = state.wb       / 100;
+    const hueShift  = state.hue;
+    const satFactor = state.sat      / 100;
+    const contrastF = contrast >= 0 ? 1 + contrast * 1.5 : 1 + contrast;
+
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+      r = clamp(r + exposure * 0.8);
+      g = clamp(g + exposure * 0.8);
+      b = clamp(b + exposure * 0.8);
+      r = clamp((r-0.5)*contrastF+0.5);
+      g = clamp((g-0.5)*contrastF+0.5);
+      b = clamp((b-0.5)*contrastF+0.5);
+      if (wb !== 0) { r=clamp(r+wb*0.18); g=clamp(g+wb*0.05); b=clamp(b-wb*0.18); }
+      if (hueShift !== 0 || satFactor !== 0) {
+        let [h,s,l] = rgbToHsl(r,g,b);
+        h = (h + hueShift/360 + 1) % 1;
+        s = clamp(s + satFactor*s + satFactor*0.15);
+        [r,g,b] = hslToRgb(h,s,l);
+      }
+      data[i]=r*255; data[i+1]=g*255; data[i+2]=b*255;
+    }
+    offCtx.putImageData(imageData, 0, 0);
+
+    const link = document.createElement('a');
+    link.download = fileName + '_instafix.jpg';
+    link.href = offscreen.toDataURL('image/jpeg', 0.92);
+    link.click();
+
+    showToast('¡Imagen exportada correctamente!');
+  });
+
+  /* ── TOAST ── */
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  /* ── DROP & CLICK ── */
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+
+  canvasArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    canvasArea.style.outline = '2px dashed var(--accent)';
+  });
+  canvasArea.addEventListener('dragleave', () => {
+    canvasArea.style.outline = '';
+  });
+  canvasArea.addEventListener('drop', e => {
+    e.preventDefault();
+    canvasArea.style.outline = '';
+    loadFile(e.dataTransfer.files[0]);
+  });
+
+  // Also allow clicking anywhere on canvas area to reopen picker
+  canvas.addEventListener('click', () => fileInput.click());
+</script>
+</body>
+</html>
