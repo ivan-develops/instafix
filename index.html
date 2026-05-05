@@ -333,7 +333,7 @@
 <!-- HEADER -->
 <header>
   <div class="logo">Instafix</div>
-  <div class="header-meta">edición de Foto</div>
+  <div class="header-meta">Edición de fotografía</div>
 </header>
 
 <!-- WORKSPACE -->
@@ -369,6 +369,14 @@
 
       <div class="control">
         <div class="control-row">
+          <span class="control-label">Brillo</span>
+          <span class="control-value" id="val-brightness">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-brightness" min="-100" max="100" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control-row">
           <span class="control-label">Contraste</span>
           <span class="control-value" id="val-contrast">0</span>
         </div>
@@ -393,7 +401,7 @@
           <span class="control-label">Matiz</span>
           <span class="control-value" id="val-hue">0°</span>
         </div>
-        <input type="range" class="filled" id="ctrl-hue" min="-180" max="180" value="0">
+        <input type="range" class="filled" id="ctrl-hue" min="-35" max="35" value="0">
       </div>
 
       <div class="control">
@@ -415,6 +423,14 @@
           <span class="control-value" id="val-sharp">0</span>
         </div>
         <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span class="control-label">Ruido</span>
+          <span class="control-value" id="val-noise">0</span>
+        </div>
+        <input type="range" class="filled" id="ctrl-noise" min="0" max="100" value="0">
       </div>
     </div>
 
@@ -441,8 +457,8 @@
 <script>
   /* ── STATE ── */
   const state = {
-    exposure: 0, contrast: 0,
-    wb: 0, hue: 0, sat: 0, sharp: 0
+    exposure: 0, brightness: 0, contrast: 0,
+    wb: 0, hue: 0, sat: 0, sharp: 0, noise: 0
   };
 
   let originalImage = null;
@@ -460,21 +476,25 @@
   const fileMeta   = document.getElementById('file-meta');
 
   const controls = {
-    exposure: document.getElementById('ctrl-exposure'),
-    contrast: document.getElementById('ctrl-contrast'),
-    wb:       document.getElementById('ctrl-wb'),
-    hue:      document.getElementById('ctrl-hue'),
-    sat:      document.getElementById('ctrl-sat'),
-    sharp:    document.getElementById('ctrl-sharp'),
+    exposure:   document.getElementById('ctrl-exposure'),
+    brightness: document.getElementById('ctrl-brightness'),
+    contrast:   document.getElementById('ctrl-contrast'),
+    wb:         document.getElementById('ctrl-wb'),
+    hue:        document.getElementById('ctrl-hue'),
+    sat:        document.getElementById('ctrl-sat'),
+    sharp:      document.getElementById('ctrl-sharp'),
+    noise:      document.getElementById('ctrl-noise'),
   };
 
   const valueLabels = {
-    exposure: document.getElementById('val-exposure'),
-    contrast: document.getElementById('val-contrast'),
-    wb:       document.getElementById('val-wb'),
-    hue:      document.getElementById('val-hue'),
-    sat:      document.getElementById('val-sat'),
-    sharp:    document.getElementById('val-sharp'),
+    exposure:   document.getElementById('val-exposure'),
+    brightness: document.getElementById('val-brightness'),
+    contrast:   document.getElementById('val-contrast'),
+    wb:         document.getElementById('val-wb'),
+    hue:        document.getElementById('val-hue'),
+    sat:        document.getElementById('val-sat'),
+    sharp:      document.getElementById('val-sharp'),
+    noise:      document.getElementById('val-noise'),
   };
 
   /* ── SLIDER FILL ── */
@@ -525,11 +545,13 @@
     const data = imageData.data;
 
     const exposure  = state.exposure  / 100;  // –1 to +1
+    const brightness= state.brightness/ 100;  // –1 to +1
     const contrast  = state.contrast  / 100;  // –1 to +1
     const wb        = state.wb        / 100;  // –1 to +1  (cool→warm)
-    const hueShift  = state.hue;              // –180 to +180 degrees
+    const hueShift  = state.hue;              // –35 to +35 degrees
     const satFactor = state.sat       / 100;  // –1 to +1
     const sharp     = state.sharp     / 100;  // 0 to 1
+    const noiseFactor = state.noise   / 100;  // 0 to 1
 
     const contrastF = contrast >= 0
       ? 1 + contrast * 1.5
@@ -544,6 +566,11 @@
       r = clamp(r + exposure * 0.8);
       g = clamp(g + exposure * 0.8);
       b = clamp(b + exposure * 0.8);
+
+      // ── BRIGHTNESS (linear lift/lower)
+      r = clamp(r + brightness * 0.6);
+      g = clamp(g + brightness * 0.6);
+      b = clamp(b + brightness * 0.6);
 
       // ── CONTRAST (pivot at 0.5)
       r = clamp((r - 0.5) * contrastF + 0.5);
@@ -563,6 +590,14 @@
         h = (h + hueShift / 360 + 1) % 1;
         s = clamp(s + satFactor * s + satFactor * 0.15);
         [r, g, b] = hslToRgb(h, s, l);
+      }
+
+      // ── NOISE (film grain)
+      if (noiseFactor > 0) {
+        const grain = (((i * 1664525 + 1013904223) >>> 0) / 0xffffffff - 0.5) * noiseFactor * 0.25;
+        r = clamp(r + grain);
+        g = clamp(g + grain);
+        b = clamp(b + grain);
       }
 
       data[i]   = r * 255;
@@ -638,12 +673,6 @@
       updateSliderFill(controls[key]);
       valueLabels[key].textContent = key === 'hue' ? '0°' : '0';
     });
-    // reset sharp min=0 display
-    controls.sharp.value = 0;
-    state.sharp = 0;
-    updateSliderFill(controls.sharp);
-    valueLabels.sharp.textContent = '0';
-
     canvas.style.filter = '';
     applyAdjustments();
   });
@@ -663,10 +692,12 @@
     const data = imageData.data;
 
     const exposure  = state.exposure / 100;
+    const brightness= state.brightness / 100;
     const contrast  = state.contrast / 100;
     const wb        = state.wb       / 100;
     const hueShift  = state.hue;
     const satFactor = state.sat      / 100;
+    const noiseFactor = state.noise  / 100;
     const contrastF = contrast >= 0 ? 1 + contrast * 1.5 : 1 + contrast;
 
     for (let i = 0; i < data.length; i += 4) {
@@ -674,6 +705,9 @@
       r = clamp(r + exposure * 0.8);
       g = clamp(g + exposure * 0.8);
       b = clamp(b + exposure * 0.8);
+      r = clamp(r + brightness * 0.6);
+      g = clamp(g + brightness * 0.6);
+      b = clamp(b + brightness * 0.6);
       r = clamp((r-0.5)*contrastF+0.5);
       g = clamp((g-0.5)*contrastF+0.5);
       b = clamp((b-0.5)*contrastF+0.5);
@@ -683,6 +717,10 @@
         h = (h + hueShift/360 + 1) % 1;
         s = clamp(s + satFactor*s + satFactor*0.15);
         [r,g,b] = hslToRgb(h,s,l);
+      }
+      if (noiseFactor > 0) {
+        const grain = (((i * 1664525 + 1013904223) >>> 0) / 0xffffffff - 0.5) * noiseFactor * 0.25;
+        r=clamp(r+grain); g=clamp(g+grain); b=clamp(b+grain);
       }
       data[i]=r*255; data[i+1]=g*255; data[i+2]=b*255;
     }
