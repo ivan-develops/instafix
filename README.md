@@ -1,20 +1,27 @@
 # 📷 Instafix
 
-Aplicación de edición de fotografía JPG. Permite ajustar propiedades la imagen y exportar al instante
-
----
-
-## 🎯 Objetivo
-- 
+Instafix es una aplicación de edición de fotografía serncilla. Funciona desde el navegador, sin servidores, descargas o instalaciones. Permite abrir una imagen, aplicar ajustes visuales en tiempo real y exportar.
 
 ---
 
 ## 🛠️ Tecnologías
 - **HTML5**
+- **Canvas API**
 - **CSS3**
 - **JavaScript (ES6+)**
 
----
+## ⚡ Caracteristicas
+- El núcleo del proyecto es Canvas API que procesa píxel a píxel mediante `getImageData()` y `putImageData()`. 
+- Editor responsive.
+- Ajustes disponibles para imagen: exposición, brillo, contraste, balance de blancos, matiz, saturación, ruido, saturación selectiva por canal.
+- Carga de imágenes por clic y drag & drop.
+- Exportación en tamaño original.
 
-## 🚀 Cómo ejecutar los ejercicios
-1. 
+## ⚙ Cómo ejecutar los ejercicios
+1. Abrir imagen.
+2. Aplicar ajustes usando controladores.
+3. Exportar imagen.
+
+## 🚀 Demo en vivo
+
+👉 [Ver proyecto en GitHub Pages](https://ivan-develops.github.io/instafix/)
