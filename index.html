@@ -6,38 +6,37 @@
 <title>Instafix</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0e0e0f;
-    --panel: #161618;
-    --border: #2a2a2e;
-    --accent: #f0c040;
-    --accent2: #e87040;
-    --text: #e8e8e0;
-    --muted: #7a7a72;
-    --track: #2a2a2e;
-    --thumb: #f0c040;
-    --radius: 10px;
+
+:root {
+    --bg:       #0e0e0f;
+    --panel:    #161618;
+    --border:   #2a2a2e;
+    --accent:   #f0c040;
+    --accent2:  #e87040;
+    --text:     #e8e8e0;
+    --muted:    #7a7a72;
+    --track:    #2a2a2e;
+    --radius:   10px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
   }
 
-  /* ── HEADER ── */
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 28px;
-    height: 56px;
+    padding: 0 24px;
+    height: 52px;
     border-bottom: 1px solid var(--border);
     background: var(--panel);
     flex-shrink: 0;
@@ -59,14 +58,15 @@
     text-transform: uppercase;
   }
 
-  /* ── MAIN LAYOUT ── */
+  /* ══ WORKSPACE ═══════════════════════════════════ */
   .workspace {
     display: flex;
+    flex-direction: row;
     flex: 1;
     overflow: hidden;
   }
 
-  /* ── CANVAS AREA ── */
+  /* ══ CANVAS AREA ════════════════════════════════ */
   .canvas-area {
     flex: 1;
     display: flex;
@@ -75,6 +75,7 @@
     background: var(--bg);
     position: relative;
     overflow: hidden;
+    min-height: 0;
   }
 
   .canvas-area::before {
@@ -86,6 +87,7 @@
       linear-gradient(90deg, var(--border) 1px, transparent 1px);
     background-size: 32px 32px;
     opacity: 0.25;
+    pointer-events: none;
   }
 
   .drop-zone {
@@ -96,14 +98,13 @@
     align-items: center;
     gap: 16px;
     cursor: pointer;
+    padding: 24px;
     transition: opacity 0.2s;
   }
-
-  .drop-zone:hover { opacity: 0.8; }
+  .drop-zone:hover { opacity: 0.78; }
 
   .drop-icon {
-    width: 72px;
-    height: 72px;
+    width: 72px; height: 72px;
     border: 2px dashed var(--accent);
     border-radius: 50%;
     display: flex;
@@ -115,61 +116,59 @@
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(240,192,64,0.3); }
-    50%       { box-shadow: 0 0 0 12px rgba(240,192,64,0); }
+    0%,100% { box-shadow: 0 0 0 0    rgba(240,192,64,.3); }
+    50%      { box-shadow: 0 0 0 12px rgba(240,192,64,0);  }
   }
 
-  .drop-label {
-    font-size: 14px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.6;
-  }
-
-  .drop-label strong {
-    color: var(--accent);
-    font-weight: 500;
-  }
+  .drop-label { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.6; }
+  .drop-label strong { color: var(--accent); font-weight: 500; }
 
   #preview-canvas {
     display: none;
     max-width: 100%;
     max-height: 100%;
     border-radius: var(--radius);
-    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    box-shadow: 0 24px 80px rgba(0,0,0,.7);
     position: relative;
     z-index: 1;
+    cursor: pointer;
   }
 
-  /* ── RIGHT PANEL ── */
+  /* ══ PANEL — Desktop ════════════════════════════ */
   .panel {
     width: 280px;
     background: var(--panel);
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     flex-shrink: 0;
+    overflow: hidden;
   }
 
-  .panel::-webkit-scrollbar { width: 4px; }
-  .panel::-webkit-scrollbar-track { background: transparent; }
-  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sections-scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .sections-scroll::-webkit-scrollbar       { width: 4px; }
+  .sections-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sections-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .panel-header {
-    padding: 20px 20px 12px;
+    padding: 18px 20px 12px;
     border-bottom: 1px solid var(--border);
     font-family: 'Bebas Neue', sans-serif;
     font-size: 14px;
     letter-spacing: 3px;
     color: var(--muted);
+    flex-shrink: 0;
   }
 
-  /* ── CONTROL SECTIONS ── */
-  .section {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-  }
+  /* Tab nav — hidden on desktop */
+  .tab-nav { display: none; }
+
+  /* ══ SECTIONS ════════════════════════════════════ */
+  .section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
 
   .section-title {
     font-size: 10px;
@@ -180,294 +179,351 @@
     font-weight: 500;
   }
 
-  .control {
-    margin-bottom: 18px;
-  }
-
+  /* ══ CONTROLS ════════════════════════════════════ */
+  .control { margin-bottom: 18px; }
   .control:last-child { margin-bottom: 0; }
 
-  .control-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .control-label {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--text);
-  }
-
+  .control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .control-label { font-size: 13px; font-weight: 400; color: var(--text); }
   .control-value {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    min-width: 36px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 500; color: var(--accent);
+    min-width: 38px; text-align: right; font-variant-numeric: tabular-nums;
   }
 
-  /* ── RANGE SLIDER ── */
+  /* ══ RANGE SLIDER ════════════════════════════════ */
   input[type="range"] {
     -webkit-appearance: none;
-    width: 100%;
-    height: 3px;
+    width: 100%; height: 3px;
     background: var(--track);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-    position: relative;
+    border-radius: 2px; outline: none; cursor: pointer;
   }
-
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--thumb);
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 6px rgba(240,192,64,0.5);
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+    box-shadow: 0 0 6px rgba(240,192,64,.5);
+    cursor: pointer; transition: transform .15s, box-shadow .15s;
   }
-
   input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-    box-shadow: 0 0 10px rgba(240,192,64,0.8);
+    transform: scale(1.3); box-shadow: 0 0 10px rgba(240,192,64,.8);
   }
-
-  input[type="range"]:focus::-webkit-slider-thumb {
-    transform: scale(1.25);
-  }
-
-  /* dynamic fill using --pct CSS var set by JS */
   input[type="range"].filled {
-    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 50%), var(--track) var(--pct, 50%), var(--track) 100%);
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) var(--pct,50%),
+      var(--track)  var(--pct,50%), var(--track) 100%);
   }
 
-  /* ── RESET BUTTON ── */
-  .reset-btn {
-    margin: 16px 20px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 9px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .reset-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  /* ── EXPORT BUTTON ── */
-  .export-btn {
-    margin: 14px 20px 24px;
-    padding: 13px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: var(--radius);
-    color: #0e0e0f;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
-    width: calc(100% - 40px);
-  }
-
-  .export-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-  .export-btn:active { transform: translateY(0); }
-  .export-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-  /* ── FILE META ── */
-  .file-meta {
-    padding: 10px 20px 0;
-    font-size: 11px;
-    color: var(--muted);
-    display: none;
-    line-height: 1.7;
-  }
-
+  /* ══ FILE META ═══════════════════════════════════ */
+  .file-meta { padding: 10px 20px 0; font-size: 11px; color: var(--muted); display: none; line-height: 1.7; }
   .file-meta span { color: var(--text); }
 
-  /* hidden file input */
-  #file-input { display: none; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--accent);
-    color: #0e0e0f;
-    padding: 10px 22px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 100;
+  /* ══ ACTIONS ═════════════════════════════════════ */
+  .panel-actions {
+    padding: 14px 20px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    flex-shrink: 0; border-top: 1px solid var(--border);
   }
 
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  .reset-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px; background: transparent;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; letter-spacing: 1px; cursor: pointer;
+    transition: border-color .2s, color .2s; width: 100%;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .export-btn {
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: var(--radius);
+    color: #0e0e0f; font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; letter-spacing: 3px; cursor: pointer;
+    transition: opacity .2s, transform .15s; width: 100%;
+  }
+  .export-btn:hover  { opacity: .88; transform: translateY(-1px); }
+  .export-btn:active { transform: translateY(0); }
+  .export-btn:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+  /* ══ TOAST ═══════════════════════════════════════ */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent); color: #0e0e0f;
+    padding: 10px 22px; border-radius: 50px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s, transform .3s;
+    z-index: 200; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ══════════════════════════════════════════════════
+     MOBILE  (≤ 768px)
+     Canvas top  +  tabbed panel bottom
+  ══════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    .header-meta { display: none; }
+
+    .workspace { flex-direction: column; }
+
+    /* Canvas: top 40% of available height */
+    .canvas-area { flex: 0 0 40vh; border-bottom: 1px solid var(--border); }
+
+    .drop-icon  { width: 54px; height: 54px; font-size: 20px; }
+    .drop-label { font-size: 12px; }
+
+    /* Panel: remaining space, full width */
+    .panel { width: 100%; border-left: none; flex: 1; min-height: 0; }
+
+    /* Swap header for tab nav */
+    .panel-header { display: none; }
+
+    .tab-nav {
+      display: flex; flex-shrink: 0; height: 40px;
+      background: var(--panel); border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 1; min-width: 70px; padding: 0 10px;
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Hide all sections; show only active tab */
+    .section { display: none; }
+    .section.tab-active { display: block; }
+
+    /* Larger touch targets */
+    input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
+
+    .file-meta { display: none !important; }
+
+    /* Actions row at bottom */
+    .panel-actions { flex-direction: row; padding: 10px 16px; gap: 10px; }
+    .reset-btn  { flex: 1; font-size: 11px; padding: 11px 6px; }
+    .export-btn { flex: 2; font-size: 14px; padding: 11px 6px; }
+
+    .toast { bottom: 80px; }
+  }
+
+  /* ══ LUMINOSIDAD — colored labels & sliders ═════ */
+  .lum-red   { color: #e05555 !important; }
+  .lum-green { color: #55b855 !important; }
+  .lum-blue  { color: #5588e0 !important; }
+
+  .lum-filled-red {
+    background: linear-gradient(to right,
+      #e05555 0%, #e05555 var(--pct,50%),
+      var(--track) var(--pct,50%), var(--track) 100%) !important;
+  }
+  .lum-filled-red::-webkit-slider-thumb { background: #e05555 !important; box-shadow: 0 0 6px rgba(224,85,85,.5) !important; }
+
+  .lum-filled-green {
+    background: linear-gradient(to right,
+      #55b855 0%, #55b855 var(--pct,50%),
+      var(--track) var(--pct,50%), var(--track) 100%) !important;
+  }
+  .lum-filled-green::-webkit-slider-thumb { background: #55b855 !important; box-shadow: 0 0 6px rgba(85,184,85,.5) !important; }
+
+  .lum-filled-blue {
+    background: linear-gradient(to right,
+      #5588e0 0%, #5588e0 var(--pct,50%),
+      var(--track) var(--pct,50%), var(--track) 100%) !important;
+  }
+  .lum-filled-blue::-webkit-slider-thumb { background: #5588e0 !important; box-shadow: 0 0 6px rgba(85,136,224,.5) !important; }
+
+  @media (max-width: 768px) {
+    .lum-filled-red::-webkit-slider-thumb,
+    .lum-filled-green::-webkit-slider-thumb,
+    .lum-filled-blue::-webkit-slider-thumb { width: 22px; height: 22px; }
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ══ HEADER ══════════════════════════════════════ -->
 <header>
-  <div class="logo">Instafix</div>
-  <div class="header-meta">Edición de fotografía</div>
+  <span class="logo">Instafix</span>
+  <span class="header-meta">Edición de fotografía</span>
 </header>
 
-<!-- WORKSPACE -->
+<!-- ══ WORKSPACE ═══════════════════════════════════ -->
 <div class="workspace">
 
-  <!-- CANVAS -->
+  <!-- Canvas -->
   <div class="canvas-area" id="canvas-area">
     <div class="drop-zone" id="drop-zone">
       <div class="drop-icon">⊕</div>
-      <div class="drop-label">
+      <p class="drop-label">
         <strong>Haz clic o arrastra</strong> tu imagen aquí<br>
-        Formatos soportados: JPG, PNG
-      </div>
+        Formatos: JPG · PNG · WEBP
+      </p>
     </div>
     <canvas id="preview-canvas"></canvas>
   </div>
 
-  <!-- RIGHT PANEL -->
+  <!-- Adjustments Panel -->
   <aside class="panel">
+
     <div class="panel-header">Ajustes</div>
 
-    <!-- Exposición -->
-    <div class="section">
-      <div class="section-title">Luz</div>
+    <!-- Mobile tabs -->
+    <nav class="tab-nav" id="tab-nav">
+      <button class="tab-btn active" data-tab="luz">Luz</button>
+      <button class="tab-btn"        data-tab="color">Color</button>
+      <button class="tab-btn"        data-tab="detalle">Detalle</button>
+      <button class="tab-btn"        data-tab="luminosidad">Luminosidad</button>
+    </nav>
 
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Exposición</span>
-          <span class="control-value" id="val-exposure">0</span>
+    <div class="sections-scroll">
+
+      <!-- LUZ -->
+      <section class="section tab-active" id="sec-luz">
+        <p class="section-title">Luz</p>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Exposición</span>
+            <span class="control-value" id="val-exposure">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-exposure" min="-100" max="100" value="0">
         </div>
-        <input type="range" class="filled" id="ctrl-exposure" min="-100" max="100" value="0">
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Brillo</span>
+            <span class="control-value" id="val-brightness">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-brightness" min="-100" max="100" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Contraste</span>
+            <span class="control-value" id="val-contrast">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-contrast" min="-100" max="100" value="0">
+        </div>
+      </section>
+
+      <!-- COLOR -->
+      <section class="section" id="sec-color">
+        <p class="section-title">Color</p>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Balance de Blancos</span>
+            <span class="control-value" id="val-wb">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-wb" min="-100" max="100" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Matiz</span>
+            <span class="control-value" id="val-hue">0°</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-hue" min="-35" max="35" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Saturación</span>
+            <span class="control-value" id="val-sat">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-sat" min="-100" max="100" value="0">
+        </div>
+      </section>
+
+      <!-- DETALLE -->
+      <section class="section" id="sec-detalle">
+        <p class="section-title">Detalle</p>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Nitidez</span>
+            <span class="control-value" id="val-sharp">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label">Ruido</span>
+            <span class="control-value" id="val-noise">0</span>
+          </div>
+          <input type="range" class="filled" id="ctrl-noise" min="0" max="100" value="0">
+        </div>
+      </section>
+
+      <!-- LUMINOSIDAD -->
+      <section class="section" id="sec-luminosidad">
+        <p class="section-title">Luminosidad</p>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label lum-red">● Rojo</span>
+            <span class="control-value" id="val-lumR">0</span>
+          </div>
+          <input type="range" class="filled lum-filled-red" id="ctrl-lumR" min="-100" max="100" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label lum-green">● Verde</span>
+            <span class="control-value" id="val-lumG">0</span>
+          </div>
+          <input type="range" class="filled lum-filled-green" id="ctrl-lumG" min="-100" max="100" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <span class="control-label lum-blue">● Azul</span>
+            <span class="control-value" id="val-lumB">0</span>
+          </div>
+          <input type="range" class="filled lum-filled-blue" id="ctrl-lumB" min="-100" max="100" value="0">
+        </div>
+      </section>
+
+      <div class="file-meta" id="file-meta">
+        Archivo: <span id="meta-name">—</span><br>
+        Dimensiones: <span id="meta-dims">—</span>
       </div>
 
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Brillo</span>
-          <span class="control-value" id="val-brightness">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-brightness" min="-100" max="100" value="0">
-      </div>
+    </div><!-- /.sections-scroll -->
 
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Contraste</span>
-          <span class="control-value" id="val-contrast">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-contrast" min="-100" max="100" value="0">
-      </div>
+    <div class="panel-actions">
+      <button class="reset-btn"  id="btn-reset">↺ &nbsp;Restablecer</button>
+      <button class="export-btn" id="btn-export" disabled>⬇ Exportar JPG</button>
     </div>
 
-    <!-- Color -->
-    <div class="section">
-      <div class="section-title">Color</div>
-
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Balance de Blancos</span>
-          <span class="control-value" id="val-wb">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-wb" min="-100" max="100" value="0">
-      </div>
-
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Matiz</span>
-          <span class="control-value" id="val-hue">0°</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-hue" min="-35" max="35" value="0">
-      </div>
-
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Saturación</span>
-          <span class="control-value" id="val-sat">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-sat" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <!-- Detalle -->
-    <div class="section">
-      <div class="section-title">Detalle</div>
-
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Nitidez</span>
-          <span class="control-value" id="val-sharp">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
-      </div>
-
-      <div class="control">
-        <div class="control-row">
-          <span class="control-label">Ruido</span>
-          <span class="control-value" id="val-noise">0</span>
-        </div>
-        <input type="range" class="filled" id="ctrl-noise" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <!-- File meta -->
-    <div class="file-meta" id="file-meta">
-      Archivo: <span id="meta-name">—</span><br>
-      Dimensiones: <span id="meta-dims">—</span>
-    </div>
-
-    <!-- Reset -->
-    <button class="reset-btn" id="btn-reset">↺ &nbsp;Restablecer ajustes</button>
-
-    <!-- Export -->
-    <button class="export-btn" id="btn-export" disabled>⬇ Exportar JPG</button>
   </aside>
 </div>
 
-<!-- Toast notification -->
-<div class="toast" id="toast">Imagen exportada ✓</div>
-
-<!-- Hidden file input -->
-<input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+<div class="toast" id="toast"></div>
+<input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display:none">
 
 <script>
-  /* ── STATE ── */
+  /* ══ STATE ═══════════════════════════════════════ */
   const state = {
     exposure: 0, brightness: 0, contrast: 0,
-    wb: 0, hue: 0, sat: 0, sharp: 0, noise: 0
+    wb: 0, hue: 0, sat: 0, sharp: 0, noise: 0,
+    lumR: 0, lumG: 0, lumB: 0
   };
 
-  let originalImage = null;
-  let fileName = 'instafix-export';
-
-  /* ── ELEMENTS ── */
-  const canvas = document.getElementById('preview-canvas');
-  const ctx    = canvas.getContext('2d');
-  const dropZone  = document.getElementById('drop-zone');
+  /* ══ DOM ═════════════════════════════════════════ */
+  const canvas     = document.getElementById('preview-canvas');
+  const ctx        = canvas.getContext('2d');
+  const dropZone   = document.getElementById('drop-zone');
   const canvasArea = document.getElementById('canvas-area');
   const fileInput  = document.getElementById('file-input');
   const exportBtn  = document.getElementById('btn-export');
@@ -484,6 +540,9 @@
     sat:        document.getElementById('ctrl-sat'),
     sharp:      document.getElementById('ctrl-sharp'),
     noise:      document.getElementById('ctrl-noise'),
+    lumR:       document.getElementById('ctrl-lumR'),
+    lumG:       document.getElementById('ctrl-lumG'),
+    lumB:       document.getElementById('ctrl-lumB'),
   };
 
   const valueLabels = {
@@ -495,16 +554,42 @@
     sat:        document.getElementById('val-sat'),
     sharp:      document.getElementById('val-sharp'),
     noise:      document.getElementById('val-noise'),
+    lumR:       document.getElementById('val-lumR'),
+    lumG:       document.getElementById('val-lumG'),
+    lumB:       document.getElementById('val-lumB'),
   };
 
-  /* ── SLIDER FILL ── */
+  let originalImage = null;
+  let fileName      = 'instafix-export';
+
+  /* ══ MOBILE TABS ════════════════════════════════ */
+  const tabNav   = document.getElementById('tab-nav');
+  const sections = {
+    luz:          document.getElementById('sec-luz'),
+    color:        document.getElementById('sec-color'),
+    detalle:      document.getElementById('sec-detalle'),
+    luminosidad:  document.getElementById('sec-luminosidad'),
+  };
+
+  tabNav.addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    const tab = btn.dataset.tab;
+    tabNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.entries(sections).forEach(([key, sec]) => {
+      sec.classList.toggle('tab-active', key === tab);
+    });
+  });
+
+  /* ══ SLIDER FILL ════════════════════════════════ */
   function updateSliderFill(input) {
-    const min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
-    const pct = ((val - min) / (max - min)) * 100;
+    const pct = (parseFloat(input.value) - parseFloat(input.min))
+              / (parseFloat(input.max)   - parseFloat(input.min)) * 100;
     input.style.setProperty('--pct', pct + '%');
   }
 
-  /* ── LOAD IMAGE ── */
+  /* ══ LOAD IMAGE ═════════════════════════════════ */
   function loadFile(file) {
     if (!file || !file.type.match(/image\/(jpeg|png|webp)/)) return;
     fileName = file.name.replace(/\.[^.]+$/, '');
@@ -513,22 +598,18 @@
       const img = new Image();
       img.onload = () => {
         originalImage = img;
-        // Size canvas to fit area
-        const area = canvasArea.getBoundingClientRect();
-        const scale = Math.min((area.width - 48) / img.width, (area.height - 48) / img.height, 1);
+        const area  = canvasArea.getBoundingClientRect();
+        const scale = Math.min((area.width - 32) / img.width, (area.height - 32) / img.height, 1);
         canvas.width  = img.width;
         canvas.height = img.height;
         canvas.style.width  = (img.width  * scale) + 'px';
         canvas.style.height = (img.height * scale) + 'px';
-
         dropZone.style.display = 'none';
-        canvas.style.display = 'block';
-        exportBtn.disabled = false;
-
+        canvas.style.display   = 'block';
+        exportBtn.disabled     = false;
         document.getElementById('meta-name').textContent = file.name;
         document.getElementById('meta-dims').textContent = `${img.width} × ${img.height} px`;
         fileMeta.style.display = 'block';
-
         applyAdjustments();
       };
       img.src = e.target.result;
@@ -536,85 +617,7 @@
     reader.readAsDataURL(file);
   }
 
-  /* ── PIXEL PROCESSING ── */
-  function applyAdjustments() {
-    if (!originalImage) return;
-
-    ctx.drawImage(originalImage, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    const exposure  = state.exposure  / 100;  // –1 to +1
-    const brightness= state.brightness/ 100;  // –1 to +1
-    const contrast  = state.contrast  / 100;  // –1 to +1
-    const wb        = state.wb        / 100;  // –1 to +1  (cool→warm)
-    const hueShift  = state.hue;              // –35 to +35 degrees
-    const satFactor = state.sat       / 100;  // –1 to +1
-    const sharp     = state.sharp     / 100;  // 0 to 1
-    const noiseFactor = state.noise   / 100;  // 0 to 1
-
-    const contrastF = contrast >= 0
-      ? 1 + contrast * 1.5
-      : 1 + contrast;
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i]   / 255;
-      let g = data[i+1] / 255;
-      let b = data[i+2] / 255;
-
-      // ── EXPOSURE (brightness)
-      r = clamp(r + exposure * 0.8);
-      g = clamp(g + exposure * 0.8);
-      b = clamp(b + exposure * 0.8);
-
-      // ── BRIGHTNESS (linear lift/lower)
-      r = clamp(r + brightness * 0.6);
-      g = clamp(g + brightness * 0.6);
-      b = clamp(b + brightness * 0.6);
-
-      // ── CONTRAST (pivot at 0.5)
-      r = clamp((r - 0.5) * contrastF + 0.5);
-      g = clamp((g - 0.5) * contrastF + 0.5);
-      b = clamp((b - 0.5) * contrastF + 0.5);
-
-      // ── WHITE BALANCE  (warm = more R/G, less B; cool = more B, less R)
-      if (wb !== 0) {
-        r = clamp(r + wb * 0.18);
-        g = clamp(g + wb * 0.05);
-        b = clamp(b - wb * 0.18);
-      }
-
-      // ── HUE & SATURATION  (work in HSL)
-      if (hueShift !== 0 || satFactor !== 0) {
-        let [h, s, l] = rgbToHsl(r, g, b);
-        h = (h + hueShift / 360 + 1) % 1;
-        s = clamp(s + satFactor * s + satFactor * 0.15);
-        [r, g, b] = hslToRgb(h, s, l);
-      }
-
-      // ── NOISE (film grain)
-      if (noiseFactor > 0) {
-        const grain = (((i * 1664525 + 1013904223) >>> 0) / 0xffffffff - 0.5) * noiseFactor * 0.25;
-        r = clamp(r + grain);
-        g = clamp(g + grain);
-        b = clamp(b + grain);
-      }
-
-      data[i]   = r * 255;
-      data[i+1] = g * 255;
-      data[i+2] = b * 255;
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-
-    // ── SHARPNESS via CSS filter (fast approximation)
-    const sharpPx  = sharp * 1.5;
-    const blurPx   = sharp > 0 ? 0 : 0;
-    canvas.style.filter = sharp > 0
-      ? `contrast(${1 + sharp * 0.08}) saturate(${1 + sharp * 0.04})`
-      : '';
-  }
-
+  /* ══ PIXEL HELPERS ══════════════════════════════ */
   function clamp(v) { return Math.max(0, Math.min(1, v)); }
 
   function rgbToHsl(r, g, b) {
@@ -622,54 +625,111 @@
     const l = (max + min) / 2;
     if (max === min) return [0, 0, l];
     const d = max - min;
-    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    const s = l > 0.5 ? d/(2-max-min) : d/(max+min);
     let h;
     switch(max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
+      case r: h=((g-b)/d+(g<b?6:0))/6; break;
+      case g: h=((b-r)/d+2)/6;          break;
+      case b: h=((r-g)/d+4)/6;          break;
     }
     return [h, s, l];
   }
 
   function hslToRgb(h, s, l) {
-    if (s === 0) return [l, l, l];
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
+    if (s===0) return [l,l,l];
+    const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
     return [hue2rgb(p,q,h+1/3), hue2rgb(p,q,h), hue2rgb(p,q,h-1/3)];
   }
 
-  function hue2rgb(p, q, t) {
-    if (t < 0) t += 1; if (t > 1) t -= 1;
-    if (t < 1/6) return p + (q-p)*6*t;
-    if (t < 1/2) return q;
-    if (t < 2/3) return p + (q-p)*(2/3-t)*6;
+  function hue2rgb(p,q,t) {
+    if(t<0)t+=1; if(t>1)t-=1;
+    if(t<1/6) return p+(q-p)*6*t;
+    if(t<1/2) return q;
+    if(t<2/3) return p+(q-p)*(2/3-t)*6;
     return p;
   }
 
-  /* ── WIRE UP CONTROLS ── */
+  /* ══ CORE PROCESSOR ═════════════════════════════ */
+  function processPixels(data) {
+    const exposure    = state.exposure    / 100;
+    const brightness  = state.brightness  / 100;
+    const contrast    = state.contrast    / 100;
+    const wb          = state.wb          / 100;
+    const hueShift    = state.hue;
+    const satFactor   = state.sat         / 100;
+    const noiseFactor = state.noise       / 100;
+    const contrastF   = contrast >= 0 ? 1 + contrast*1.5 : 1 + contrast;
+
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+
+      r=clamp(r+exposure*0.8);   g=clamp(g+exposure*0.8);   b=clamp(b+exposure*0.8);
+      r=clamp(r+brightness*0.6); g=clamp(g+brightness*0.6); b=clamp(b+brightness*0.6);
+      r=clamp((r-.5)*contrastF+.5); g=clamp((g-.5)*contrastF+.5); b=clamp((b-.5)*contrastF+.5);
+
+      if (wb !== 0) {
+        r=clamp(r+wb*0.18); g=clamp(g+wb*0.05); b=clamp(b-wb*0.18);
+      }
+
+      if (hueShift !== 0 || satFactor !== 0) {
+        let [h,s,l] = rgbToHsl(r,g,b);
+        h = (h + hueShift/360 + 1) % 1;
+        s = clamp(s + satFactor*s + satFactor*0.15);
+        [r,g,b] = hslToRgb(h,s,l);
+      }
+
+      if (noiseFactor > 0) {
+        const grain = (((i*1664525+1013904223)>>>0)/0xffffffff - 0.5) * noiseFactor * 0.25;
+        r=clamp(r+grain); g=clamp(g+grain); b=clamp(b+grain);
+      }
+
+      // Luminosidad por canal
+      if (state.lumR !== 0) {
+        // Peso del canal rojo en el píxel (cuánto "rojo" tiene)
+        const redWeight = r - Math.max(g, b);
+        if (redWeight > 0) r = clamp(r + (state.lumR/100) * redWeight * 1.5);
+      }
+      if (state.lumG !== 0) {
+        const greenWeight = g - Math.max(r, b);
+        if (greenWeight > 0) g = clamp(g + (state.lumG/100) * greenWeight * 1.5);
+      }
+      if (state.lumB !== 0) {
+        const blueWeight = b - Math.max(r, g);
+        if (blueWeight > 0) b = clamp(b + (state.lumB/100) * blueWeight * 1.5);
+      }
+
+      data[i]=r*255; data[i+1]=g*255; data[i+2]=b*255;
+    }
+  }
+
+  /* ══ APPLY (preview) ════════════════════════════ */
+  function applyAdjustments() {
+    if (!originalImage) return;
+    ctx.drawImage(originalImage, 0, 0);
+    const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    processPixels(id.data);
+    ctx.putImageData(id, 0, 0);
+    const sharp = state.sharp / 100;
+    canvas.style.filter = sharp > 0
+      ? `contrast(${1+sharp*0.08}) saturate(${1+sharp*0.04})` : '';
+  }
+
+  /* ══ WIRE SLIDERS ═══════════════════════════════ */
   Object.keys(controls).forEach(key => {
     const input = controls[key];
     updateSliderFill(input);
-
     input.addEventListener('input', () => {
       state[key] = parseFloat(input.value);
       updateSliderFill(input);
-
-      const isHue = key === 'hue';
-      valueLabels[key].textContent = isHue
-        ? `${input.value}°`
-        : input.value;
-
+      valueLabels[key].textContent = key === 'hue' ? `${input.value}°` : input.value;
       applyAdjustments();
     });
   });
 
-  /* ── RESET ── */
+  /* ══ RESET ══════════════════════════════════════ */
   resetBtn.addEventListener('click', () => {
     Object.keys(controls).forEach(key => {
-      controls[key].value = 0;
-      state[key] = 0;
+      controls[key].value = 0; state[key] = 0;
       updateSliderFill(controls[key]);
       valueLabels[key].textContent = key === 'hue' ? '0°' : '0';
     });
@@ -677,89 +737,40 @@
     applyAdjustments();
   });
 
-  /* ── EXPORT ── */
+  /* ══ EXPORT ═════════════════════════════════════ */
   exportBtn.addEventListener('click', () => {
     if (!originalImage) return;
-
-    // Render to full-res offscreen canvas
-    const offscreen = document.createElement('canvas');
-    offscreen.width  = originalImage.width;
-    offscreen.height = originalImage.height;
-    const offCtx = offscreen.getContext('2d');
+    const off = document.createElement('canvas');
+    off.width = originalImage.width; off.height = originalImage.height;
+    const offCtx = off.getContext('2d');
     offCtx.drawImage(originalImage, 0, 0);
-
-    const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-    const data = imageData.data;
-
-    const exposure  = state.exposure / 100;
-    const brightness= state.brightness / 100;
-    const contrast  = state.contrast / 100;
-    const wb        = state.wb       / 100;
-    const hueShift  = state.hue;
-    const satFactor = state.sat      / 100;
-    const noiseFactor = state.noise  / 100;
-    const contrastF = contrast >= 0 ? 1 + contrast * 1.5 : 1 + contrast;
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
-      r = clamp(r + exposure * 0.8);
-      g = clamp(g + exposure * 0.8);
-      b = clamp(b + exposure * 0.8);
-      r = clamp(r + brightness * 0.6);
-      g = clamp(g + brightness * 0.6);
-      b = clamp(b + brightness * 0.6);
-      r = clamp((r-0.5)*contrastF+0.5);
-      g = clamp((g-0.5)*contrastF+0.5);
-      b = clamp((b-0.5)*contrastF+0.5);
-      if (wb !== 0) { r=clamp(r+wb*0.18); g=clamp(g+wb*0.05); b=clamp(b-wb*0.18); }
-      if (hueShift !== 0 || satFactor !== 0) {
-        let [h,s,l] = rgbToHsl(r,g,b);
-        h = (h + hueShift/360 + 1) % 1;
-        s = clamp(s + satFactor*s + satFactor*0.15);
-        [r,g,b] = hslToRgb(h,s,l);
-      }
-      if (noiseFactor > 0) {
-        const grain = (((i * 1664525 + 1013904223) >>> 0) / 0xffffffff - 0.5) * noiseFactor * 0.25;
-        r=clamp(r+grain); g=clamp(g+grain); b=clamp(b+grain);
-      }
-      data[i]=r*255; data[i+1]=g*255; data[i+2]=b*255;
-    }
-    offCtx.putImageData(imageData, 0, 0);
-
-    const link = document.createElement('a');
-    link.download = fileName + '_instafix.jpg';
-    link.href = offscreen.toDataURL('image/jpeg', 0.92);
-    link.click();
-
+    const id = offCtx.getImageData(0, 0, off.width, off.height);
+    processPixels(id.data);
+    offCtx.putImageData(id, 0, 0);
+    const a = document.createElement('a');
+    a.download = `${fileName}_instafix.jpg`;
+    a.href = off.toDataURL('image/jpeg', 0.92);
+    a.click();
     showToast('¡Imagen exportada correctamente!');
   });
 
-  /* ── TOAST ── */
+  /* ══ TOAST ══════════════════════════════════════ */
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2800);
   }
 
-  /* ── DROP & CLICK ── */
-  dropZone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+  /* ══ FILE INPUT / DRAG & DROP ═══════════════════ */
+  dropZone.addEventListener('click',   () => fileInput.click());
+  canvas.addEventListener('click',     () => fileInput.click());
+  fileInput.addEventListener('change',  e => loadFile(e.target.files[0]));
 
-  canvasArea.addEventListener('dragover', e => {
-    e.preventDefault();
-    canvasArea.style.outline = '2px dashed var(--accent)';
-  });
-  canvasArea.addEventListener('dragleave', () => {
-    canvasArea.style.outline = '';
-  });
+  canvasArea.addEventListener('dragover',  e => { e.preventDefault(); canvasArea.style.outline='2px dashed var(--accent)'; });
+  canvasArea.addEventListener('dragleave', () => { canvasArea.style.outline=''; });
   canvasArea.addEventListener('drop', e => {
-    e.preventDefault();
-    canvasArea.style.outline = '';
-    loadFile(e.dataTransfer.files[0]);
+    e.preventDefault(); canvasArea.style.outline=''; loadFile(e.dataTransfer.files[0]);
   });
-
-  // Also allow clicking anywhere on canvas area to reopen picker
-  canvas.addEventListener('click', () => fileInput.click());
 </script>
 </body>
 </html>
