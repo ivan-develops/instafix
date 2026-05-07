@@ -6,7 +6,7 @@ Instafix es una aplicación de edición de fotografía serncilla. Funciona desde
 
 ## 💻 Capturas de pantalla
 
-![Captura de Pantalla 1](screenshot_1.jpg)
+![Captura de Pantalla](Screenshot_1.jpg)
 
 ## 🛠️ Tecnologías
 - **HTML5**
