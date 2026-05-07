@@ -1,478 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instafix</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  /* ══ TOKENS ══════════════════════════════════════ */
-  :root {
-    --bg:       #0e0e0f;
-    --panel:    #161618;
-    --border:   #2a2a2e;
-    --accent:   #f0c040;
-    --accent2:  #e87040;
-    --text:     #e8e8e0;
-    --muted:    #7a7a72;
-    --track:    #2a2a2e;
-    --radius:   10px;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    cursor: default;
-  }
-
-  /* ══ HEADER ═════════════════════════════════════ */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    height: 52px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
-    flex-shrink: 0;
-  }
-
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .header-meta {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  /* ══ WORKSPACE ═══════════════════════════════════ */
-  .workspace {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* ══ CANVAS AREA ════════════════════════════════ */
-  .canvas-area {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  .canvas-area::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 32px 32px;
-    opacity: 0.25;
-    pointer-events: none;
-  }
-
-  .drop-zone {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
-    padding: 24px;
-    transition: opacity 0.2s;
-  }
-  .drop-zone:hover { opacity: 0.78; }
-
-  .drop-icon {
-    width: 72px; height: 72px;
-    border: 2px dashed var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    color: var(--accent);
-    animation: pulse 2.5s ease-in-out infinite;
-    padding-bottom: 1.5%
-  }
-
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 0    rgba(240,192,64,.3); }
-    50%      { box-shadow: 0 0 0 12px rgba(240,192,64,0);  }
-  }
-
-  .drop-label { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.6; }
-  .drop-label strong { color: var(--accent); font-weight: 500; }
-
-  #preview-canvas {
-    display: none;
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: var(--radius);
-    box-shadow: 0 24px 80px rgba(0,0,0,.7);
-    position: relative;
-    z-index: 1;
-    cursor: pointer;
-  }
-
-  /* ══ PANEL — Desktop ════════════════════════════ */
-  .panel {
-    width: 280px;
-    background: var(--panel);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
-  .sections-scroll {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-  }
-  .sections-scroll::-webkit-scrollbar       { width: 4px; }
-  .sections-scroll::-webkit-scrollbar-track { background: transparent; }
-  .sections-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .panel-header {
-    padding: 18px 20px 12px;
-    border-bottom: 1px solid var(--border);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  /* Tab nav — hidden on desktop */
-  .tab-nav { display: none; }
-
-  /* ══ SECTIONS ════════════════════════════════════ */
-  .section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
-
-  .section-title {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 14px;
-    font-weight: 500;
-  }
-
-  /* ══ CONTROLS ════════════════════════════════════ */
-  .control { margin-bottom: 18px; }
-  .control:last-child { margin-bottom: 0; }
-
-  .control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .control-label { font-size: 13px; font-weight: 400; color: var(--text); }
-  .control-value {
-    font-size: 12px; font-weight: 500; color: var(--accent);
-    min-width: 38px; text-align: right; font-variant-numeric: tabular-nums;
-  }
-
-  /* ══ RANGE SLIDER ════════════════════════════════ */
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%; height: 3px;
-    background: var(--track);
-    border-radius: 2px; outline: none; cursor: pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: var(--accent); border: 2px solid var(--bg);
-    box-shadow: 0 0 6px rgba(240,192,64,.5);
-    cursor: pointer; transition: transform .15s, box-shadow .15s;
-  }
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.3); box-shadow: 0 0 10px rgba(240,192,64,.8);
-  }
-  input[type="range"].filled {
-    background: linear-gradient(to right,
-      var(--accent) 0%, var(--accent) var(--pct,50%),
-      var(--track)  var(--pct,50%), var(--track) 100%);
-  }
-
-  /* ══ FILE META ═══════════════════════════════════ */
-  .file-meta { padding: 10px 20px 0; font-size: 11px; color: var(--muted); display: none; line-height: 1.7; }
-  .file-meta span { color: var(--text); }
-
-  /* ══ ACTIONS ═════════════════════════════════════ */
-  .panel-actions {
-    padding: 14px 20px 20px;
-    display: flex; flex-direction: column; gap: 10px;
-    flex-shrink: 0; border-top: 1px solid var(--border);
-  }
-
-  .reset-btn {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 9px; background: transparent;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--muted); font-family: 'DM Sans', sans-serif;
-    font-size: 12px; letter-spacing: 1px; cursor: pointer;
-    transition: border-color .2s, color .2s; width: 100%;
-  }
-  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .export-btn {
-    padding: 13px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none; border-radius: var(--radius);
-    color: #0e0e0f; font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 3px; cursor: pointer;
-    transition: opacity .2s, transform .15s; width: 100%;
-  }
-  .export-btn:hover  { opacity: .88; transform: translateY(-1px); }
-  .export-btn:active { transform: translateY(0); }
-  .export-btn:disabled { opacity: .3; cursor: not-allowed; transform: none; }
-
-  /* ══ TOAST ═══════════════════════════════════════ */
-  .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--accent); color: #0e0e0f;
-    padding: 10px 22px; border-radius: 50px;
-    font-size: 13px; font-weight: 500;
-    opacity: 0; pointer-events: none;
-    transition: opacity .3s, transform .3s;
-    z-index: 200; white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ══════════════════════════════════════════════════
-     MOBILE  (≤ 768px)
-     Canvas top  +  tabbed panel bottom
-  ══════════════════════════════════════════════════ */
-  @media (max-width: 768px) {
-
-    .header-meta { display: none; }
-
-    .workspace { flex-direction: column; }
-
-    /* Canvas: top 40% of available height */
-    .canvas-area { flex: 0 0 40vh; border-bottom: 1px solid var(--border); }
-
-    .drop-icon  { width: 54px; height: 54px; font-size: 20px; }
-    .drop-label { font-size: 12px; }
-
-    /* Panel: remaining space, full width */
-    .panel { width: 100%; border-left: none; flex: 1; min-height: 0; }
-
-    /* Swap header for tab nav */
-    .panel-header { display: none; }
-
-    .tab-nav {
-      display: flex; flex-shrink: 0; height: 40px;
-      background: var(--panel); border-bottom: 1px solid var(--border);
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .tab-nav::-webkit-scrollbar { display: none; }
-
-    .tab-btn {
-      flex: 1; min-width: 70px; padding: 0 10px;
-      background: transparent; border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--muted); font-family: 'DM Sans', sans-serif;
-      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
-      cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap;
-    }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    /* Hide all sections; show only active tab */
-    .section { display: none; }
-    .section.tab-active { display: block; }
-
-    /* Larger touch targets */
-    input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
-
-    .file-meta { display: none !important; }
-
-    /* Actions row at bottom */
-    .panel-actions { flex-direction: row; padding: 10px 16px; gap: 10px; }
-    .reset-btn  { flex: 1; font-size: 11px; padding: 11px 6px; }
-    .export-btn { flex: 2; font-size: 14px; padding: 11px 6px; }
-
-    .toast { bottom: 80px; }
-  }
-
-  /* ══ LUMINOSIDAD — colored labels & sliders ═════ */
-  .lum-red   { color: #e05555 !important; }
-  .lum-green { color: #55b855 !important; }
-  .lum-blue  { color: #5588e0 !important; }
-
-  .lum-filled-red {
-    background: linear-gradient(to right,
-      #e05555 0%, #e05555 var(--pct,50%),
-      var(--track) var(--pct,50%), var(--track) 100%) !important;
-  }
-  .lum-filled-red::-webkit-slider-thumb { background: #e05555 !important; box-shadow: 0 0 6px rgba(224,85,85,.5) !important; }
-
-  .lum-filled-green {
-    background: linear-gradient(to right,
-      #55b855 0%, #55b855 var(--pct,50%),
-      var(--track) var(--pct,50%), var(--track) 100%) !important;
-  }
-  .lum-filled-green::-webkit-slider-thumb { background: #55b855 !important; box-shadow: 0 0 6px rgba(85,184,85,.5) !important; }
-
-  .lum-filled-blue {
-    background: linear-gradient(to right,
-      #5588e0 0%, #5588e0 var(--pct,50%),
-      var(--track) var(--pct,50%), var(--track) 100%) !important;
-  }
-  .lum-filled-blue::-webkit-slider-thumb { background: #5588e0 !important; box-shadow: 0 0 6px rgba(85,136,224,.5) !important; }
-
-  /* ══ MODAL ═══════════════════════════════════════ */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,.4);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-    animation: fadeIn .3s ease;
-  }
-  .modal-overlay.hidden { display: none; }
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-
-  .modal {
-    background: #1a1a1c;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    width: 100%; max-width: 520px;
-    max-height: 90dvh;
-    overflow-y: auto;
-    animation: slideUp .35s ease;
-  }
-  .modal::-webkit-scrollbar { width: 4px; }
-  .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* Header */
-  .modal-head {
-    padding: 28px 28px 0;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    text-align: center;
-  }
-
-  .modal-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px; letter-spacing: 4px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-
-  .modal-tagline {
-    font-size: 19px; color: var(--text); letter-spacing: .5px;
-  }
-
-  /* Divider */
-  .modal-divider {
-    height: 1px; background: var(--border); margin: 20px 28px 0;
-  }
-
-  /* Steps grid */
-  .modal-steps {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    padding: 20px 28px;
-  }
-
-  .step {
-    background: #111113;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-
-  .step-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .step-icon.yellow { background: rgba(240,192,64,.12); }
-  .step-icon.orange { background: rgba(232,112,64,.12); }
-  .step-icon.blue   { background: rgba(85,136,224,.12); }
-  .step-icon.green  { background: rgba(85,184,85,.12);  }
-
-  .step-title {
-    font-size: 19px; font-weight: 500; color: var(--text);
-    line-height: 1.3;
-  }
-
-  .step-desc {
-    font-size: 16px; color: #b8b8b0; line-height: 1.6;
-  }
-
-  /* Tip bar */
-  .modal-tip {
-    margin: 0 28px 20px;
-    background: rgba(240,192,64,.07);
-    border: 1px solid rgba(240,192,64,.18);
-    border-radius: 10px;
-    padding: 12px 16px;
-    display: flex; align-items: flex-start; gap: 10px;
-  }
-
-  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-
-  .tip-text { font-size: 15px; color: #b8b8b0; line-height: 1.6; }
-  .tip-text strong { color: var(--accent); font-weight: 500; }
-
-  /* CTA button */
-  .modal-cta {
-    margin: 0 28px 28px;
-    padding: 14px;
-    width: calc(100% - 56px); /* match side margins */
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none; border-radius: var(--radius);
-    color: #0e0e0f;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 17px; letter-spacing: 3px;
-    cursor: pointer;
-    transition: opacity .2s, transform .15s;
-    display: block;
-  }
-  .modal-cta:hover  { opacity: .88; transform: translateY(-1px); }
-  .modal-cta:active { transform: translateY(0); }
-
-  @media (max-width: 480px) {
-    .modal-steps { grid-template-columns: 1fr; }
-    .modal-head  { padding: 22px 20px 0; }
-    .modal-divider { margin: 16px 20px 0; }
-    .modal-steps { padding: 16px 20px; }
-    .modal-tip   { margin: 0 20px 16px; }
-    .modal-cta   { margin: 0 20px 22px; width: calc(100% - 40px); }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instafix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
 </head>
+
 <body>
 
 <!-- ══ MODAL DE BIENVENIDA ═══════════════════════ -->
@@ -480,43 +18,102 @@
   <div class="modal" role="dialog" aria-modal="true" aria-label="Cómo usar Instafix">
 
     <div class="modal-head">
-      <div class="modal-logo">Instafix</div>
+      <div class="modal-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 401.89 525.25" height="44" width="33" aria-hidden="true">
+          <defs>
+            <linearGradient id="boltGradModal" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%"   stop-color="#f0c040"/>
+              <stop offset="100%" stop-color="#e87040"/>
+            </linearGradient>
+          </defs>
+          <path fill="#f0c040" d="M94.57,423.15l15.5-26.29A170.46,170.46,0,0,1,274,98.65L295.25,75.2a200,200,0,0,0-94.31-23.48C90,51.72,0,141.68,0,252.66A200.78,200.78,0,0,0,94.57,423.15Z"/>
+          <path fill="#3a3a3e" d="M311.23,84.68l-15.4,26.39A170.47,170.47,0,0,1,130.71,408l-20.09,24.2a200.09,200.09,0,0,0,90.32,21.4c111,0,201-90,201-200.94A200.76,200.76,0,0,0,311.23,84.68Z"/>
+          <polygon fill="url(#boltGradModal)" points="97.93 269.62 226.38 234.01 54.69 525.25 347.2 172.96 226.38 198.4 342.11 0 97.93 269.62"/>
+        </svg>
+        <span class="modal-logo-text">Instafix</span>
+      </div>
       <p class="modal-tagline">Editor de fotografía rápido</p>
     </div>
 
-    <div class="modal-divider"></div>
-
     <div class="modal-steps">
 
+      <!-- 1 -->
       <div class="step">
-        <div class="step-icon yellow">📂</div>
-        <div class="step-title">Abre tu foto</div>
-        <p class="step-desc">Haz clic o arrastra una imagen al área central.</p>
+        <div class="step-num">1</div>
+        <div class="step-icon gold">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0c040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Abre tu foto</div>
+          <p class="step-desc">Haz clic en el área central o arrastra un archivo JPG, PNG o WEBP.</p>
+        </div>
       </div>
 
+      <!-- 2 -->
       <div class="step">
-        <div class="step-icon orange">🎚️</div>
-        <div class="step-title">Ajusta</div>
-        <p class="step-desc">Mueve los sliders del panel para editar tu foto en tiempo real.</p>
+        <div class="step-num">2</div>
+        <div class="step-icon orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e87040" stroke-width="1.8" stroke-linecap="round">
+            <line x1="4"  y1="6"  x2="20" y2="6"/>
+            <line x1="4"  y1="12" x2="20" y2="12"/>
+            <line x1="4"  y1="18" x2="20" y2="18"/>
+            <circle cx="9"  cy="6"  r="2" fill="#e87040" stroke="none"/>
+            <circle cx="15" cy="12" r="2" fill="#e87040" stroke="none"/>
+            <circle cx="10" cy="18" r="2" fill="#e87040" stroke="none"/>
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Ajusta los controles</div>
+          <p class="step-desc">Mueve los sliders del panel — los cambios se ven en tiempo real.</p>
+        </div>
       </div>
 
+      <!-- 3 -->
       <div class="step">
-        <div class="step-icon blue">↩️</div>
-        <div class="step-title">Doble clic</div>
-        <p class="step-desc">Resetea cualquier slider a su valor original.</p>
+        <div class="step-num">3</div>
+        <div class="step-icon muted">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a7a72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Doble clic para resetear</div>
+          <p class="step-desc">Haz doble clic sobre cualquier slider para devolverlo a cero.</p>
+        </div>
       </div>
 
+      <!-- 4 -->
       <div class="step">
-        <div class="step-icon green">⬇️</div>
-        <div class="step-title">Exporta</div>
-        <p class="step-desc">Descarga tu imagen en JPG a resolución completa.</p>
+        <div class="step-num">4</div>
+        <div class="step-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#55b855" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Exporta en JPG</div>
+          <p class="step-desc">Descarga tu imagen con todos los ajustes a resolución completa.</p>
+        </div>
       </div>
 
     </div>
 
     <div class="modal-tip">
-      <span class="tip-icon">💡</span>
-      <p class="tip-text"><strong>Restablecer</strong> devuelve todos los controles a cero.</p>
+      <span class="tip-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f0c040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8"  x2="12"   y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </span>
+      <p class="tip-text"><strong>Restablecer</strong> devuelve todos los controles a cero de un solo clic.</p>
     </div>
 
     <button class="modal-cta" id="modal-cta">¡ Empezar a editar !</button>
@@ -526,14 +123,41 @@
 
 <!-- ══ HEADER ══════════════════════════════════════ -->
 <header>
-  <span class="logo">Instafix</span>
-  <span class="header-meta">Edición de fotografía</span>
+  <div class="logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 401.89 525.25" height="32" width="25" aria-hidden="true">
+      <defs>
+        <linearGradient id="boltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stop-color="#f0c040"/>
+          <stop offset="100%" stop-color="#e87040"/>
+        </linearGradient>
+      </defs>
+      <path fill="#f0c040" d="M94.57,423.15l15.5-26.29A170.46,170.46,0,0,1,274,98.65L295.25,75.2a200,200,0,0,0-94.31-23.48C90,51.72,0,141.68,0,252.66A200.78,200.78,0,0,0,94.57,423.15Z"/>
+      <path fill="#3a3a3e" d="M311.23,84.68l-15.4,26.39A170.47,170.47,0,0,1,130.71,408l-20.09,24.2a200.09,200.09,0,0,0,90.32,21.4c111,0,201-90,201-200.94A200.76,200.76,0,0,0,311.23,84.68Z"/>
+      <polygon fill="url(#boltGrad)" points="97.93 269.62 226.38 234.01 54.69 525.25 347.2 172.96 226.38 198.4 342.11 0 97.93 269.62"/>
+    </svg>
+    <span class="logo-text">Instafix</span>
+  </div>
+  <div class="header-right">
+    <button class="help-btn" id="help-btn" aria-label="Cómo usar Instafix">
+      <svg class="help-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span class="help-label">¿Cómo lo uso?</span>
+    </button>
+    <a class="github-link" href="https://github.com/ivan-develops" target="_blank" rel="noopener noreferrer">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    ivan-develops
+  </a>
+  </div>
 </header>
 
 <!-- ══ WORKSPACE ═══════════════════════════════════ -->
 <div class="workspace">
 
-  <!-- Canvas -->
   <div class="canvas-area" id="canvas-area">
     <div class="drop-zone" id="drop-zone">
       <div class="drop-icon">⊕</div>
@@ -545,12 +169,10 @@
     <canvas id="preview-canvas"></canvas>
   </div>
 
-  <!-- Adjustments Panel -->
   <aside class="panel">
 
     <div class="panel-header">Ajustes</div>
 
-    <!-- Mobile tabs -->
     <nav class="tab-nav" id="tab-nav">
       <button class="tab-btn active" data-tab="luz">Luz</button>
       <button class="tab-btn"        data-tab="color">Color</button>
@@ -563,15 +185,13 @@
       <!-- LUZ -->
       <section class="section tab-active" id="sec-luz">
         <p class="section-title">Luz</p>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Exposición</span>
             <span class="control-value" id="val-exposure">0</span>
           </div>
-          <input type="range" class="filled" id="ctrl-exposure" min="-100" max="100" value="0">
+          <input type="range" class="filled" id="ctrl-exposure" min="-40" max="40" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Brillo</span>
@@ -579,36 +199,32 @@
           </div>
           <input type="range" class="filled" id="ctrl-brightness" min="-40" max="40" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Contraste</span>
             <span class="control-value" id="val-contrast">0</span>
           </div>
-          <input type="range" class="filled" id="ctrl-contrast" min="-40" max="40" value="0">
+          <input type="range" class="filled" id="ctrl-contrast" min="-30" max="30" value="0">
         </div>
       </section>
 
       <!-- COLOR -->
       <section class="section" id="sec-color">
         <p class="section-title">Color</p>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Balance de Blancos</span>
             <span class="control-value" id="val-wb">0</span>
           </div>
-          <input type="range" class="filled" id="ctrl-wb" min="-100" max="100" value="0">
+          <input type="range" class="filled" id="ctrl-wb" min="-40" max="40" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Matiz</span>
-            <span class="control-value" id="val-hue">0°</span>
+            <span class="control-value" id="val-hue">0</span>
           </div>
           <input type="range" class="filled" id="ctrl-hue" min="-35" max="35" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Saturación</span>
@@ -621,7 +237,6 @@
       <!-- DETALLE -->
       <section class="section" id="sec-detalle">
         <p class="section-title">Detalle</p>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Nitidez</span>
@@ -629,7 +244,6 @@
           </div>
           <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label">Ruido</span>
@@ -639,18 +253,16 @@
         </div>
       </section>
 
-      <!-- LUMINOSIDAD -->
+      <!-- SATURACIÓN SELECTIVA -->
       <section class="section" id="sec-luminosidad">
         <p class="section-title">Saturación Selectiva</p>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label lum-red">● Rojo</span>
             <span class="control-value" id="val-lumR">0</span>
           </div>
-          <input type="range" class="filled lum-filled-red" id="ctrl-lumR" min="-100" max="100" value="0">
+          <input type="range" class="filled lum-filled-red" id="ctrl-lumR" min="-40" max="40" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label lum-green">● Verde</span>
@@ -658,7 +270,6 @@
           </div>
           <input type="range" class="filled lum-filled-green" id="ctrl-lumG" min="-100" max="100" value="0">
         </div>
-
         <div class="control">
           <div class="control-row">
             <span class="control-label lum-blue">● Azul</span>
@@ -673,7 +284,7 @@
         Dimensiones: <span id="meta-dims">—</span>
       </div>
 
-    </div><!-- /.sections-scroll -->
+    </div>
 
     <div class="panel-actions">
       <button class="reset-btn"  id="btn-reset">↺ &nbsp;Restablecer</button>
@@ -686,288 +297,5 @@
 <div class="toast" id="toast"></div>
 <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display:none">
 
-<script>
-  /* ══ MODAL ══════════════════════════════════════ */
-  const modalOverlay = document.getElementById('modal-overlay');
-  const modalCta     = document.getElementById('modal-cta');
-
-  function closeModal() { modalOverlay.classList.add('hidden'); }
-
-  modalCta.addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', e => {
-    if (e.target === modalOverlay) closeModal();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-  });
-
-  /* ══ STATE ═══════════════════════════════════════ */
-  const state = {
-    exposure: 0, brightness: 0, contrast: 0,
-    wb: 0, hue: 0, sat: 0, sharp: 0, noise: 0,
-    lumR: 0, lumG: 0, lumB: 0
-  };
-
-  /* ══ DOM ═════════════════════════════════════════ */
-  const canvas     = document.getElementById('preview-canvas');
-  const ctx        = canvas.getContext('2d');
-  const dropZone   = document.getElementById('drop-zone');
-  const canvasArea = document.getElementById('canvas-area');
-  const fileInput  = document.getElementById('file-input');
-  const exportBtn  = document.getElementById('btn-export');
-  const resetBtn   = document.getElementById('btn-reset');
-  const toast      = document.getElementById('toast');
-  const fileMeta   = document.getElementById('file-meta');
-
-  const controls = {
-    exposure:   document.getElementById('ctrl-exposure'),
-    brightness: document.getElementById('ctrl-brightness'),
-    contrast:   document.getElementById('ctrl-contrast'),
-    wb:         document.getElementById('ctrl-wb'),
-    hue:        document.getElementById('ctrl-hue'),
-    sat:        document.getElementById('ctrl-sat'),
-    sharp:      document.getElementById('ctrl-sharp'),
-    noise:      document.getElementById('ctrl-noise'),
-    lumR:       document.getElementById('ctrl-lumR'),
-    lumG:       document.getElementById('ctrl-lumG'),
-    lumB:       document.getElementById('ctrl-lumB'),
-  };
-
-  const valueLabels = {
-    exposure:   document.getElementById('val-exposure'),
-    brightness: document.getElementById('val-brightness'),
-    contrast:   document.getElementById('val-contrast'),
-    wb:         document.getElementById('val-wb'),
-    hue:        document.getElementById('val-hue'),
-    sat:        document.getElementById('val-sat'),
-    sharp:      document.getElementById('val-sharp'),
-    noise:      document.getElementById('val-noise'),
-    lumR:       document.getElementById('val-lumR'),
-    lumG:       document.getElementById('val-lumG'),
-    lumB:       document.getElementById('val-lumB'),
-  };
-
-  let originalImage = null;
-  let fileName      = 'instafix-export';
-
-  /* ══ MOBILE TABS ════════════════════════════════ */
-  const tabNav   = document.getElementById('tab-nav');
-  const sections = {
-    luz:          document.getElementById('sec-luz'),
-    color:        document.getElementById('sec-color'),
-    detalle:      document.getElementById('sec-detalle'),
-    luminosidad:  document.getElementById('sec-luminosidad'),
-  };
-
-  tabNav.addEventListener('click', e => {
-    const btn = e.target.closest('.tab-btn');
-    if (!btn) return;
-    const tab = btn.dataset.tab;
-    tabNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    Object.entries(sections).forEach(([key, sec]) => {
-      sec.classList.toggle('tab-active', key === tab);
-    });
-  });
-
-  /* ══ SLIDER FILL ════════════════════════════════ */
-  function updateSliderFill(input) {
-    const pct = (parseFloat(input.value) - parseFloat(input.min))
-              / (parseFloat(input.max)   - parseFloat(input.min)) * 100;
-    input.style.setProperty('--pct', pct + '%');
-  }
-
-  /* ══ LOAD IMAGE ═════════════════════════════════ */
-  function loadFile(file) {
-    if (!file || !file.type.match(/image\/(jpeg|png|webp)/)) return;
-    fileName = file.name.replace(/\.[^.]+$/, '');
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        originalImage = img;
-        const area  = canvasArea.getBoundingClientRect();
-        const scale = Math.min((area.width - 32) / img.width, (area.height - 32) / img.height, 1);
-        canvas.width  = img.width;
-        canvas.height = img.height;
-        canvas.style.width  = (img.width  * scale) + 'px';
-        canvas.style.height = (img.height * scale) + 'px';
-        dropZone.style.display = 'none';
-        canvas.style.display   = 'block';
-        exportBtn.disabled     = false;
-        document.getElementById('meta-name').textContent = file.name;
-        document.getElementById('meta-dims').textContent = `${img.width} × ${img.height} px`;
-        fileMeta.style.display = 'block';
-        applyAdjustments();
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  /* ══ PIXEL HELPERS ══════════════════════════════ */
-  function clamp(v) { return Math.max(0, Math.min(1, v)); }
-
-  function rgbToHsl(r, g, b) {
-    const max = Math.max(r,g,b), min = Math.min(r,g,b);
-    const l = (max + min) / 2;
-    if (max === min) return [0, 0, l];
-    const d = max - min;
-    const s = l > 0.5 ? d/(2-max-min) : d/(max+min);
-    let h;
-    switch(max) {
-      case r: h=((g-b)/d+(g<b?6:0))/6; break;
-      case g: h=((b-r)/d+2)/6;          break;
-      case b: h=((r-g)/d+4)/6;          break;
-    }
-    return [h, s, l];
-  }
-
-  function hslToRgb(h, s, l) {
-    if (s===0) return [l,l,l];
-    const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
-    return [hue2rgb(p,q,h+1/3), hue2rgb(p,q,h), hue2rgb(p,q,h-1/3)];
-  }
-
-  function hue2rgb(p,q,t) {
-    if(t<0)t+=1; if(t>1)t-=1;
-    if(t<1/6) return p+(q-p)*6*t;
-    if(t<1/2) return q;
-    if(t<2/3) return p+(q-p)*(2/3-t)*6;
-    return p;
-  }
-
-  /* ══ CORE PROCESSOR ═════════════════════════════ */
-  function processPixels(data) {
-    const exposure    = state.exposure    / 100;
-    const brightness  = state.brightness  / 100;
-    const contrast    = state.contrast    / 100;
-    const wb          = state.wb          / 100;
-    const hueShift    = state.hue;
-    const satFactor   = state.sat         / 100;
-    const noiseFactor = state.noise       / 100;
-    const contrastF   = contrast >= 0 ? 1 + contrast*1.5 : 1 + contrast;
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
-
-      r=clamp(r+exposure*0.8);   g=clamp(g+exposure*0.8);   b=clamp(b+exposure*0.8);
-      r=clamp(r+brightness*0.6); g=clamp(g+brightness*0.6); b=clamp(b+brightness*0.6);
-      r=clamp((r-.5)*contrastF+.5); g=clamp((g-.5)*contrastF+.5); b=clamp((b-.5)*contrastF+.5);
-
-      if (wb !== 0) {
-        r=clamp(r+wb*0.18); g=clamp(g+wb*0.05); b=clamp(b-wb*0.18);
-      }
-
-      if (hueShift !== 0 || satFactor !== 0) {
-        let [h,s,l] = rgbToHsl(r,g,b);
-        h = (h + hueShift/360 + 1) % 1;
-        s = clamp(s + satFactor*s + satFactor*0.15);
-        [r,g,b] = hslToRgb(h,s,l);
-      }
-
-      if (noiseFactor > 0) {
-        const grain = (((i*1664525+1013904223)>>>0)/0xffffffff - 0.5) * noiseFactor * 0.25;
-        r=clamp(r+grain); g=clamp(g+grain); b=clamp(b+grain);
-      }
-
-      // Luminosidad por canal
-      if (state.lumR !== 0) {
-        // Peso del canal rojo en el píxel (cuánto "rojo" tiene)
-        const redWeight = r - Math.max(g, b);
-        if (redWeight > 0) r = clamp(r + (state.lumR/100) * redWeight * 1.5);
-      }
-      if (state.lumG !== 0) {
-        const greenWeight = g - Math.max(r, b);
-        if (greenWeight > 0) g = clamp(g + (state.lumG/100) * greenWeight * 1.5);
-      }
-      if (state.lumB !== 0) {
-        const blueWeight = b - Math.max(r, g);
-        if (blueWeight > 0) b = clamp(b + (state.lumB/100) * blueWeight * 1.5);
-      }
-
-      data[i]=r*255; data[i+1]=g*255; data[i+2]=b*255;
-    }
-  }
-
-  /* ══ APPLY (preview) ════════════════════════════ */
-  function applyAdjustments() {
-    if (!originalImage) return;
-    ctx.drawImage(originalImage, 0, 0);
-    const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    processPixels(id.data);
-    ctx.putImageData(id, 0, 0);
-    const sharp = state.sharp / 100;
-    canvas.style.filter = sharp > 0
-      ? `contrast(${1+sharp*0.08}) saturate(${1+sharp*0.04})` : '';
-  }
-
-  /* ══ WIRE SLIDERS ═══════════════════════════════ */
-  Object.keys(controls).forEach(key => {
-    const input = controls[key];
-    updateSliderFill(input);
-    input.addEventListener('input', () => {
-      state[key] = parseFloat(input.value);
-      updateSliderFill(input);
-      valueLabels[key].textContent = key === 'hue' ? `${input.value}°` : input.value;
-      applyAdjustments();
-    });
-  });
-
-  /* ══ DOUBLE-CLICK → reset individual slider ════ */
-  Object.keys(controls).forEach(key => {
-    controls[key].addEventListener('dblclick', () => {
-      controls[key].value = 0;
-      state[key] = 0;
-      updateSliderFill(controls[key]);
-      valueLabels[key].textContent = key === 'hue' ? '0°' : '0';
-      applyAdjustments();
-    });
-  });
-  resetBtn.addEventListener('click', () => {
-    Object.keys(controls).forEach(key => {
-      controls[key].value = 0; state[key] = 0;
-      updateSliderFill(controls[key]);
-      valueLabels[key].textContent = key === 'hue' ? '0°' : '0';
-    });
-    canvas.style.filter = '';
-    applyAdjustments();
-  });
-
-  /* ══ EXPORT ═════════════════════════════════════ */
-  exportBtn.addEventListener('click', () => {
-    if (!originalImage) return;
-    const off = document.createElement('canvas');
-    off.width = originalImage.width; off.height = originalImage.height;
-    const offCtx = off.getContext('2d');
-    offCtx.drawImage(originalImage, 0, 0);
-    const id = offCtx.getImageData(0, 0, off.width, off.height);
-    processPixels(id.data);
-    offCtx.putImageData(id, 0, 0);
-    const a = document.createElement('a');
-    a.download = `${fileName}_instafix.jpg`;
-    a.href = off.toDataURL('image/jpeg', 0.92);
-    a.click();
-    showToast('¡Imagen exportada correctamente!');
-  });
-
-  /* ══ TOAST ══════════════════════════════════════ */
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2800);
-  }
-
-  /* ══ FILE INPUT / DRAG & DROP ═══════════════════ */
-  dropZone.addEventListener('click',   () => fileInput.click());
-  canvas.addEventListener('click',     () => fileInput.click());
-  fileInput.addEventListener('change',  e => loadFile(e.target.files[0]));
-
-  canvasArea.addEventListener('dragover',  e => { e.preventDefault(); canvasArea.style.outline='2px dashed var(--accent)'; });
-  canvasArea.addEventListener('dragleave', () => { canvasArea.style.outline=''; });
-  canvasArea.addEventListener('drop', e => {
-    e.preventDefault(); canvasArea.style.outline=''; loadFile(e.dataTransfer.files[0]);
-  });
-</script>
 </body>
 </html>

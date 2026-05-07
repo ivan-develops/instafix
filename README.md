@@ -4,11 +4,15 @@ Instafix es una aplicación de edición de fotografía serncilla. Funciona desde
 
 ---
 
+## 💻 Capturas de pantalla
+
+![Captura de Pantalla 1](screenshot_1.jpg)
+
 ## 🛠️ Tecnologías
 - **HTML5**
 - **Canvas API**
 - **CSS3**
-- **JavaScript (ES6+)**
+- **JavaScript**
 
 ## ⚡ Caracteristicas
 - El núcleo del proyecto es Canvas API que procesa píxel a píxel mediante `getImageData()` y `putImageData()`. 
@@ -16,6 +20,7 @@ Instafix es una aplicación de edición de fotografía serncilla. Funciona desde
 - Ajustes disponibles para imagen: exposición, brillo, contraste, balance de blancos, matiz, saturación, ruido, saturación selectiva por canal.
 - Carga de imágenes por clic y drag & drop.
 - Exportación en tamaño original.
+- Intrucciones en modal.
 
 ## ⚙ Cómo ejecutar los ejercicios
 1. Abrir imagen.
