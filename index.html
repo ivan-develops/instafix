@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
-  <link rel="shortcut icon" href="/img/logo-favicon.svg" type="image/x-icon">
 </head>
 
 <body>
@@ -41,32 +40,15 @@
       <!-- 1 -->
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-icon gold">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0c040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-        </div>
         <div class="step-body">
           <div class="step-title">Abre tu foto</div>
-          <p class="step-desc">Haz clic en el área central o arrastra un archivo JPG, PNG o WEBP.</p>
+          <p class="step-desc">Haz clic en el área central o arrastra un archivo JPG o PNG.</p>
         </div>
       </div>
 
       <!-- 2 -->
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-icon orange">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e87040" stroke-width="1.8" stroke-linecap="round">
-            <line x1="4"  y1="6"  x2="20" y2="6"/>
-            <line x1="4"  y1="12" x2="20" y2="12"/>
-            <line x1="4"  y1="18" x2="20" y2="18"/>
-            <circle cx="9"  cy="6"  r="2" fill="#e87040" stroke="none"/>
-            <circle cx="15" cy="12" r="2" fill="#e87040" stroke="none"/>
-            <circle cx="10" cy="18" r="2" fill="#e87040" stroke="none"/>
-          </svg>
-        </div>
         <div class="step-body">
           <div class="step-title">Ajusta los controles</div>
           <p class="step-desc">Mueve los sliders del panel — los cambios se ven en tiempo real.</p>
@@ -76,28 +58,6 @@
       <!-- 3 -->
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-icon muted">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a7a72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-        </div>
-        <div class="step-body">
-          <div class="step-title">Doble clic para resetear</div>
-          <p class="step-desc">Haz doble clic sobre cualquier slider para devolverlo a cero.</p>
-        </div>
-      </div>
-
-      <!-- 4 -->
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-icon green">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#55b855" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </div>
         <div class="step-body">
           <div class="step-title">Exporta en JPG</div>
           <p class="step-desc">Descarga tu imagen con todos los ajustes a resolución completa.</p>
@@ -114,7 +74,7 @@
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </span>
-      <p class="tip-text"><strong>Restablecer</strong> devuelve todos los controles a cero de un solo clic.</p>
+      <p class="tip-text">Haz <strong>doble clic</strong> sobre cualquier slider para resetear ese control a cero. Para volver todos los ajustes al inicio, usa el botón <strong>Restablecer</strong>.</p>
     </div>
 
     <button class="modal-cta" id="modal-cta">¡ Empezar a editar !</button>
@@ -164,7 +124,7 @@
       <div class="drop-icon">⊕</div>
       <p class="drop-label">
         <strong>Haz clic o arrastra</strong> tu imagen aquí<br>
-        Formatos: JPG · PNG · WEBP
+        Formatos: JPG · PNG
       </p>
     </div>
     <canvas id="preview-canvas"></canvas>
