@@ -1,3 +1,33 @@
+/* ══ BEFORE / AFTER ════════════════════════════ */
+const beforeBtn    = document.getElementById('before-btn');
+const originalBadge = document.getElementById('original-badge');
+let showingOriginal = false;
+
+function showOriginal() {
+    if (!originalImage || showingOriginal) return;
+    showingOriginal = true;
+    ctx.drawImage(originalImage, 0, 0);
+    canvas.style.filter = '';
+    beforeBtn.classList.add('active');
+    originalBadge.style.display = 'block';
+}
+
+function showEdited() {
+    if (!showingOriginal) return;
+    showingOriginal = false;
+    applyAdjustments();
+    beforeBtn.classList.remove('active');
+    originalBadge.style.display = 'none';
+}
+
+// Mouse
+beforeBtn.addEventListener('mousedown', e => { e.preventDefault(); showOriginal(); });
+document.addEventListener('mouseup', () => { if (showingOriginal) showEdited(); });
+
+// Touch
+beforeBtn.addEventListener('touchstart', e => { e.preventDefault(); showOriginal(); }, { passive: false });
+document.addEventListener('touchend', () => { if (showingOriginal) showEdited(); });
+
 /* ══ MODAL ══════════════════════════════════════ */
 const modalOverlay = document.getElementById('modal-overlay');
 const modalCta     = document.getElementById('modal-cta');
@@ -106,6 +136,8 @@ function loadFile(file) {
         dropZone.style.display = 'none';
         canvas.style.display   = 'block';
         exportBtn.disabled     = false;
+        beforeBtn.style.display = 'flex';
+        canvasArea.classList.add('has-image');
         document.getElementById('meta-name').textContent = file.name;
         document.getElementById('meta-dims').textContent = `${img.width} × ${img.height} px`;
         fileMeta.style.display = 'block';

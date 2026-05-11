@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
 </head>
-
 <body>
 
 <!-- ══ MODAL DE BIENVENIDA ═══════════════════════ -->
@@ -128,6 +127,18 @@
       </p>
     </div>
     <canvas id="preview-canvas"></canvas>
+
+    <!-- Before/after button — top left, visible only when image loaded -->
+    <button class="before-btn" id="before-btn" aria-label="Ver original" title="Mantén presionado para ver el original">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+      Original
+    </button>
+
+    <!-- "Original" badge — bottom center, shown while holding -->
+    <div class="original-badge" id="original-badge">Original</div>
   </div>
 
   <aside class="panel">
@@ -249,7 +260,14 @@
 
     <div class="panel-actions">
       <button class="reset-btn"  id="btn-reset">↺ &nbsp;Restablecer</button>
-      <button class="export-btn" id="btn-export" disabled>⬇ Exportar JPG</button>
+      <button class="export-btn" id="btn-export" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:7px;margin-bottom:2px">
+          <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Exportar JPG
+      </button>
     </div>
 
   </aside>

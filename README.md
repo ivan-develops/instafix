@@ -1,6 +1,6 @@
 # 📷 Instafix
 
-Instafix es una aplicación de edición de fotografía serncilla. Funciona desde el navegador, sin servidores, descargas o instalaciones. Permite abrir una imagen, aplicar ajustes visuales en tiempo real y exportar.
+Instafix es una aplicación de edición de fotografía rápida. Funciona desde el navegador, sin necesidad de servidores, descargas o instalaciones. Permite abrir una imagen, aplicar ajustes visuales en tiempo real y exportar.
 
 ---
 
