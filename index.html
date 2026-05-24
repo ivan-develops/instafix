@@ -133,6 +133,9 @@
     </div>
     <canvas id="preview-canvas"></canvas>
 
+    <!-- Zoom level badge — top center -->
+    <div class="zoom-badge" id="zoom-badge">100%</div>
+
     <!-- Before/after button — top left, visible only when image loaded -->
     <button class="before-btn" id="before-btn" aria-label="Ver original" title="Mantén presionado para ver el original">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -190,10 +193,10 @@
         <p class="section-title">Color</p>
         <div class="control">
           <div class="control-row">
-            <span class="control-label">Balance de Blancos</span>
-            <span class="control-value" id="val-wb">0</span>
+            <span class="control-label">Temperatura</span>
+            <span class="control-value" id="val-wb">0K</span>
           </div>
-          <input type="range" class="filled" id="ctrl-wb" min="-40" max="40" value="0">
+          <input type="range" class="filled" id="ctrl-wb" min="-3000" max="3000" value="0" step="100">
         </div>
         <div class="control">
           <div class="control-row">
@@ -220,13 +223,6 @@
             <span class="control-value" id="val-sharp">0</span>
           </div>
           <input type="range" class="filled" id="ctrl-sharp" min="0" max="100" value="0">
-        </div>
-        <div class="control">
-          <div class="control-row">
-            <span class="control-label">Ruido</span>
-            <span class="control-value" id="val-noise">0</span>
-          </div>
-          <input type="range" class="filled" id="ctrl-noise" min="0" max="100" value="0">
         </div>
       </section>
 
@@ -265,14 +261,35 @@
 
     <div class="panel-actions">
       <button class="reset-btn"  id="btn-reset">↺ &nbsp;Restablecer</button>
-      <button class="export-btn" id="btn-export" disabled>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:7px;margin-bottom:2px">
-          <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-        Exportar JPG
-      </button>
+      <!-- Export split button -->
+      <div class="export-wrap" id="export-wrap">
+        <button class="export-btn" id="btn-export" disabled>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:7px;margin-bottom:2px">
+            <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Exportar JPG
+          <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:6px;transition:transform .2s">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        <div class="export-menu" id="export-menu">
+          <button class="export-option" data-mode="original">
+            <span class="option-name">Original</span>
+            <span class="option-desc" id="desc-original">Resolución completa</span>
+          </button>
+          <button class="export-option" data-mode="desktop">
+            <span class="option-name">Escritorio</span>
+            <span class="option-desc">Máx. 1920 × 1080 px</span>
+          </button>
+          <button class="export-option" data-mode="social">
+            <span class="option-name">Redes sociales</span>
+            <span class="option-desc">Máx. 1080 × 1080 px</span>
+          </button>
+        </div>
+      </div>
     </div>
 
   </aside>
@@ -280,6 +297,7 @@
 
 <div class="toast" id="toast"></div>
 <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+
 
 </body>
 </html>
